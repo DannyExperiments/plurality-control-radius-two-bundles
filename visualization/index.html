@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Three paths, one winning choice</title>
+<style>
+:root{color-scheme:dark;--bg:#101b2e;--panel:#182942;--ink:#f3f7ff;--muted:#bdcde5;--mint:#80e8cf;--amber:#ffc185;--blue:#7799c8}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.5 system-ui,sans-serif}
+main{max-width:65rem;margin:auto;padding:clamp(1rem,4vw,2.5rem)}
+h1{font-size:clamp(2rem,7vw,3.45rem);line-height:1.06;margin:0 0 .6rem}
+h2{font-size:1.14rem;margin:0 0 .55rem}
+p{margin:.4rem 0 .9rem}
+.lead,.hint{color:var(--muted)}
+.grid{display:grid;grid-template-columns:1.45fr 1fr;gap:1rem;align-items:start}
+.panel{background:var(--panel);border:1px solid #395474;border-radius:1rem;padding:1rem}
+canvas{display:block;width:100%;aspect-ratio:38/23;touch-action:pan-y;cursor:grab}
+label{font-weight:630}
+input,select{accent-color:var(--mint);min-height:2.75rem}
+input[type=range],select{width:100%}
+select{font:inherit;border:1px solid #6282a8;border-radius:.5rem;padding:.4rem;background:#182942;color:var(--ink);margin:.23rem 0 .7rem}
+.key{display:flex;flex-wrap:wrap;gap:.25rem 1rem;margin:.4rem 0 .8rem}
+.mint{color:var(--mint)}.amber{color:var(--amber)}
+#result{font-weight:750;padding:.6rem .7rem;border:1px solid currentColor;border-radius:.55rem}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th,td{text-align:left;border-bottom:1px solid #455e80;padding:.24rem 0}
+summary{cursor:pointer;font-weight:700;min-height:2.75rem}
+details{margin-top:1rem}
+:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
+@media(max-width:44rem){.grid{grid-template-columns:1fr}.panel{padding:.85rem}}
+</style>
+</head>
+<body>
+<main>
+<h1>Three paths, one winning choice</h1>
+<p class="lead">Each path is a triple in a matching instance. Choose one leader per path and see whether the union of the three bundles makes p a plurality co-winner.</p>
+<div class="grid">
+  <section class="panel">
+    <h2>Full radius-two bundles</h2>
+    <canvas id="paths" width="760" height="460" aria-label="Three disjoint five-voter paths in a rotatable view. The selected leaders and the other added voters are highlighted. Voter labels show their top candidates."></canvas>
+    <div class="key"><span class="amber">● Leader</span><span class="mint">● Added voter</span><span>━ Distance ≤ 2</span></div>
+    <label for="orbit">Rotate the paths</label>
+    <input id="orbit" type="range" min="-62" max="62" value="-25" aria-describedby="orbit-help">
+    <p class="hint" id="orbit-help">Drag the diagram or use the slider. Each path’s middle voter supports p.</p>
+  </section>
+  <section class="panel">
+    <h2>Choose the leaders</h2>
+    <div id="choices"></div>
+    <div aria-live="polite">
+      <p id="result"></p>
+      <table>
+        <thead><tr><th>Candidate</th><th>Start</th><th>Added</th><th>Final</th></tr></thead>
+        <tbody id="scores"></tbody>
+      </table>
+    </div>
+  </section>
+</div>
+<details class="panel">
+  <summary>Why these choices work</summary>
+  <p>A = (x₀, y₀, z₀), B = (x₀, y₁, z₁), C = (x₁, y₁, z₁). The initial score of p is six and the fixed rival g has nine. Voters 1 and 5 cannot add the middle p-voter. Leaders 2, 3, and 4 are choices L, M, and R.</p>
+  <p>L adds y and z, M adds z and x, and R adds two x votes besides the vote for p. In the default selection L, R, L, only A and C use L, so they cover each x, y, and z once. Change A from L to M to see x₀ exceed the cap. Change only B from R to L to see y₁ and z₁ exceed it.</p>
+</details>
+</main>
+<script>
+"use strict";
+const canvas = document.getElementById("paths");
+const ctx = canvas.getContext("2d");
+const orbit = document.getElementById("orbit");
+const triples = [["x₀","y₀","z₀"],["x₀","y₁","z₁"],["x₁","y₁","z₁"]];
+const orders = ["31024","10324","01234","20134","20143"];
+const coords = [[-2.1,.23],[-1.1,-.30],[0,.14],[1.1,-.25],[2.1,.23]];
+const start = {p:6,g:9,"x₀":7,"x₁":9,"y₀":8,"y₁":8,"z₀":8,"z₁":8};
+const tags = ["A","B","C"];
+const initial = [1,3,1];
+const controls = triples.map(([x,y,z], row) => {
+  const label = document.createElement("label");
+  label.textContent = tags[row]+" · "+x+", "+y+", "+z;
+  const select = document.createElement("select");
+  select.setAttribute("aria-label","Leader for triple "+tags[row]);
+  ["Voter 1 · endpoint","Voter 2 · L","Voter 3 · M","Voter 4 · R","Voter 5 · endpoint"].forEach((text,i) => {
+    const option = document.createElement("option");
+    option.value = i;
+    option.textContent = text;
+    select.appendChild(option);
+  });
+  select.value = initial[row];
+  select.addEventListener("change",update);
+  label.appendChild(select);
+  document.getElementById("choices").appendChild(label);
+  return select;
+});
+
+function project(x,y,z,angle) {
+  const side = x*Math.cos(angle)-y*Math.sin(angle);
+  const depth = x*Math.sin(angle)+y*Math.cos(angle);
+  const up = z*Math.cos(.29)-depth*Math.sin(.29);
+  const zoom = 9/(9-depth*Math.cos(.29)-z*Math.sin(.29));
+  return {x:415+side*132*zoom,y:228-up*111*zoom,depth,zoom};
+}
+
+function topLabels([x,y,z]) {
+  const labels = ["p",z,x,y,"dummy"];
+  return orders.map(order => labels[Number(order[0])]);
+}
+
+function draw() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.lineCap = "round";
+  const angle = Number(orbit.value)*Math.PI/180;
+  triples.forEach((triple,row) => {
+    const labels = topLabels(triple);
+    const leader = Number(controls[row].value);
+    const points = coords.map(([x,y]) => project(x,y,(1-row)*1.19,angle));
+    ctx.fillStyle = "#f3f7ff";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = "bold 37px system-ui";
+    ctx.fillText(tags[row],38,95+row*132);
+    for (let i=0;i<4;i+=1) {
+      ctx.strokeStyle = Math.abs(i-leader)<=1 && Math.abs(i+1-leader)<=1 ? "#80e8cf" : "#7799c8";
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.moveTo(points[i].x,points[i].y);
+      ctx.lineTo(points[i+1].x,points[i+1].y);
+      ctx.stroke();
+    }
+    points.map((point,index) => ({...point,index})).sort((a,b) => a.depth-b.depth).forEach(pt => {
+      ctx.fillStyle = pt.index===leader ? "#ffc185" : Math.abs(pt.index-leader)<=1 ? "#80e8cf" : "#7799c8";
+      ctx.beginPath();
+      ctx.arc(pt.x,pt.y,23*pt.zoom,0,Math.PI*2);
+      ctx.fill();
+      ctx.strokeStyle="#182942";
+      ctx.lineWidth=3;
+      ctx.stroke();
+      ctx.fillStyle="#101b2e";
+      ctx.font="bold 27px system-ui";
+      ctx.fillText(labels[pt.index],pt.x,pt.y+1);
+    });
+  });
+}
+
+function tally() {
+  const added = {};
+  triples.forEach((triple,row) => {
+    const leader = Number(controls[row].value);
+    topLabels(triple).forEach((label,i) => {
+      if (Math.abs(i-leader)<=1) added[label]=(added[label]||0)+1;
+    });
+  });
+  return Object.entries(start).map(([label,base]) => {
+    const gain=added[label]||0;
+    return [label,base,gain,base+gain];
+  });
+}
+
+function update() {
+  const values=tally();
+  const p=values[0][3];
+  const result=document.getElementById("result");
+  const rivals=values.filter(([label,,,total]) => label!=="p" && total>p).map(([label]) => label);
+  result.textContent=rivals.length ? "No co-win. Ahead of p: "+rivals.join(", ")+"."
+                                  : "p is a plurality co-winner with "+p+".";
+  result.style.color=rivals.length ? "#ffc185" : "#80e8cf";
+  document.getElementById("scores").replaceChildren(...values.map(row => {
+    const tr=document.createElement("tr");
+    row.forEach(value => {
+      const td=document.createElement("td");
+      td.textContent=value;
+      tr.appendChild(td);
+    });
+    return tr;
+  }));
+  draw();
+}
+
+orbit.addEventListener("input",draw);
+let previous=null;
+canvas.addEventListener("pointerdown",e => {
+  if (e.button!==0) return;
+  previous=e.clientX;
+  canvas.setPointerCapture(e.pointerId);
+});
+canvas.addEventListener("pointermove",e => {
+  if (previous===null) return;
+  orbit.value=Math.max(-62,Math.min(62,Number(orbit.value)+Math.round((e.clientX-previous)*1.65)));
+  previous=e.clientX;
+  draw();
+});
+for (const event of ["pointerup","pointercancel","lostpointercapture"]) canvas.addEventListener(event,() => {previous=null;});
+update();
+</script>
+</body>
+</html>

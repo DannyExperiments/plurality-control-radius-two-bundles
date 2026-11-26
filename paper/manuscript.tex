@@ -1,0 +1,94 @@
+\documentclass[11pt,a4paper]{amsart}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amssymb}
+\usepackage[hidelinks]{hyperref}
+\hypersetup{pdftitle={Plurality voter control with full radius-two bundles}}
+\DeclareMathSizes{8}{8}{8}{8}
+\DeclareMathSizes{9}{9}{8}{8}
+\DeclareMathSizes{10.95}{10.95}{8}{8}
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}[theorem]{Corollary}
+\title{Plurality voter control with full radius-two bundles}
+\date{November 27, 2026}
+
+\begin{document}
+\begin{abstract}
+Constructive control by adding voters asks whether selecting at most \(k\) leaders and adding their voter bundles makes a designated candidate a plurality co-winner. We prove NP-completeness when each bundle is the full adjacent-swap radius-two neighborhood of its leader and contains at most three voters. The distance graph can consist entirely of induced five-vertex paths. This answers the case left open in Chen's dissertation. We also preserve the five-vertex paths at every larger fixed radius and give the unique-winner version.
+\end{abstract}
+\maketitle
+
+\section{The radius-two case}
+
+Voters are distinct identities with strict complete rankings on a common candidate set. Let \(V\) be the registered voters and \(W\) the potential voters. For each \(w\in W\), its bundle is \(\kappa(w)=\{u\in W:\delta(u,w)\le2\}\), where \(\delta\) is the minimum number of adjacent swaps. This is Kendall distance, equivalently the number of candidate pairs whose order differs. For a chosen set \(S\subseteq W\) of leaders, the new electorate is \(V\cup\bigcup_{w\in S}\kappa(w)\). Each voter in the union votes once. The decision is whether some \(S\) with \(|S|\le k\) makes the preferred candidate \(p\) tie for or take first place.
+
+\begin{theorem}\label{radius2}
+Constructive plurality voter addition is NP-complete for full radius-two bundles of size at most three. Hardness holds when the undirected radius-two graph on the potential voters is a disjoint union of induced five-vertex paths.
+\end{theorem}
+
+Chen asks for this radius and bundle size in \cite[\S6.8, p.~149]{chen}. For full-radius bundles of size at most two there is a polynomial algorithm. Earlier hardness covers bundle size three at every fixed radius at least three and bundle size four at radius one \cite[\S6.6]{chen}\cite[Thms.~6--8]{bcfnt}. Abstract symmetric bundles of size three also give hardness \cite[\S4]{kellerhals}. Those results leave the full radius-two restriction at size three. The two-candidate path algorithms in \cite[\S4]{kellerhals} use the fixed candidate count, while our reduction uses an unbounded candidate set.
+
+\section{Rankings and registered scores}
+
+Membership in NP follows by calculating all Kendall distances, then forming the bundle union of the chosen leaders and comparing plurality scores.
+
+For hardness use perfect three-dimensional matching \cite[problem~17]{karp}. The parts \(X,Y,Z\) have equal size \(n\), and \(T\subseteq X\times Y\times Z\) is the set of \(m\) triples. We may assume \(n>0\) and every \(x\in X\) occurs. The excluded cases can be decided directly and mapped to a fixed yes or no instance, with no potential voters and a single registered vote.
+
+The candidate set contains all part elements, \(p\), a rival \(g\), a private dummy per triple, and six private markers per triple. Pair the markers into three ordered pairs per triple, and fix a global order of all marker pairs. Also fix an order of the nonmarker candidates. For \(t=(x,y,z)\), name its dummy \(d_t\) and abbreviate \(p,z,x,y,d_t\) by \(0,1,2,3,4\), respectively. Make the following five potential voters.
+\[
+\begin{array}{c|ccccc}
+\text{Voter} & 1&2&3&4&5\\ \hline
+\text{First five ranks}&31024&10324&01234&20134&20143\\
+\text{First place}&y&z&p&x&x
+\end{array}
+\]
+After the first five ranks append all marker pairs in global order, reversing the three private pairs of \(t\). Then append the remaining nonmarker candidates in the fixed order. These are strict complete rankings. Distinct triple components disagree on the three pairs private to each of them, hence have distance at least six. Within one component the tails agree. Its upper-triangular Kendall distances, by row, are \((2,4,6,7)\), \((2,4,5)\), \((2,3)\), and \((1)\). Consequently the full radius-two graph contains precisely the four consecutive edges in each component, and a bundle is the closed neighborhood of its leader.
+
+Set \(k=m\). The initial scores of \(p,g\) are \(2m,3m\). Each \(y\) and \(z\) starts at \(3m-1\), and each \(x\) starts at \(3m-(2\deg_T(x)-2)\), where \(\deg_T(x)\) counts its triples. All others start at zero. The scores are nonnegative because \(1\le\deg_T(x)\le m\). We realize them by explicit registered ballots with the required candidate first. Both the number of voters and the lengths of their rankings are polynomial in the source input size.
+
+\section{The three choices}
+
+The rival \(g\) keeps score \(3m\). To reach it, \(p\) needs all \(m\) potential voters who rank \(p\) first. Each component has precisely one, and the budget forces exactly one leader per component. Only leaders 2, 3 and 4 include voter 3. Their opponent votes are
+\[
+\begin{array}{c|ccc}
+\text{Leader choice} & L\ (2)&M\ (3)&R\ (4)\\ \hline
+\text{Opponent votes}&y,z&z,x&x,x .
+\end{array}
+\]
+The allowable increments for \(y,z\) are one each and that for \(x\) is \(2\deg_T(x)-2\).
+
+For any \(x\), the all-\(R\) choices on its triples would give \(2\deg_T(x)\) votes, so at least one \(L\) or \(M\) choice is needed. Each such choice spends a \(z\)-vote. The total \(z\)-capacity is \(n\), so exactly one such choice is made for every \(x\). It must be \(L\), since one \(M\) saves only one \(x\)-vote and the cap requires saving two. The \(L\)-triples thus cover \(X\) exactly once. The \(y,z\) capacities make their \(Y,Z\) coordinates distinct. These \(n\) triples form a perfect matching.
+
+Conversely, given a perfect matching, choose \(L\) on its triples and \(R\) on all others. Each \(x\) receives \(2\deg_T(x)-2\) votes, and each \(y,z\) receives one. Thus \(p\) ties the rival at \(3m\), with every opponent at or below that score. No marker or dummy receives an added vote. This proves Theorem~\ref{radius2}.
+
+For example, take triples \(A=(x_0,y_0,z_0)\), \(B=(x_0,y_1,z_1)\), and \(C=(x_1,y_1,z_1)\). Choices \(L,R,L\) select the matching \(A,C\) and give \(p\) a score of nine. Replacing the first \(L\) with \(M\) gives \(x_0\) ten, while choosing \(L\) in every component gives \(y_1,z_1\) ten. The available slack is shared across components through the candidate scores.
+
+\section{Larger radii and unique winners}
+
+\begin{corollary}\label{extension}
+At each fixed radius \(d\ge2\), the problem is NP-complete with bundles of size at most three and with disjoint induced five-vertex paths. This holds for either the co-winner or the unique-winner criterion.
+\end{corollary}
+
+For \(d=2\) or \(d\ge4\), let \(h=\lfloor d/2\rfloor\). Replace each ranking by \(h\) consecutive copies of itself on disjoint candidate labels, in a common block order. A pair of ballots at old distance \(x\) now has distance \(hx\). Thus \(2h\le d<3h\) preserves exactly the old edges. Every first-place vote stays in the first block, which carries the original candidate scores. All other copies receive zero.
+
+For \(d=3\), append two fresh candidates to every ballot in one of the two orders, according to the ballot's permutation parity relative to a fixed reference ballot. Ballots at old distance \(x\) differ in parity exactly when \(x\) is odd. The new distance is \(x+(x\bmod 2)\), so again the same pairs are adjacent. Fresh candidates receive zero votes. These lifts preserve the registered plurality scores and have polynomial size at each fixed radius. Earlier work already proves hardness at radius at least three \cite[Thm.~6.21]{chen}\cite[Thm.~7]{bcfnt}. The refinement at those radii is the preserved five-vertex path geometry.
+
+One extra registered ballot with \(p\) first changes a plurality tie or win into a strict win, and changes a loss by at least one point into a tie or loss. Registered ballots do not enter the bundles. This yields the unique-winner result.
+
+\section*{Research disclosure}
+
+\begingroup\hyphenpenalty=10000\exhyphenpenalty=10000\emergencystretch=1em\relax
+Under human direction, ChatGPT Astra 6.2 (OpenAI) produced the discovery proof, radius-lift appendix and original replay packet. OpenAI Codex reviewed the mathematical argument and revised the manuscript. GPT-6.2 Sol traced the exact source and nearby hardness results, prepared the finite replay and illustrated example, and assembled the release. DannyExperiments maintains the repository and is the preferred citation identity. No AI system is proposed as an author.
+\par\endgroup
+
+\begin{thebibliography}{9}
+\bibitem{chen}
+J. Chen, \emph{Exploiting Structure in Computationally Hard Voting Problems}, Ph.D. thesis, Technische Universit\"at Berlin, defended 2015, issued 2016. \href{https://doi.org/10.14279/depositonce-5113}{DOI: 10.14279/depositonce-5113}.
+\bibitem{bcfnt}
+L. Bulteau, J. Chen, P. Faliszewski, R. Niedermeier, and N. Talmon, \emph{Combinatorial voter control in elections}, Theoret. Comput. Sci. \textbf{589} (2015), 99--120. \href{https://doi.org/10.1016/j.tcs.2015.04.023}{DOI: 10.1016/j.tcs.2015.04.023}.
+\bibitem{kellerhals}
+L. Kellerhals, V. Korenwein, P. Zschoche, R. Bredereck, and J. Chen, \emph{On the computational complexity of variants of combinatorial voter control in elections}, \href{https://arxiv.org/abs/1701.05108}{arXiv:1701.05108}.
+\bibitem{karp}
+R. M. Karp, \emph{Reducibility among combinatorial problems}, in \emph{Complexity of Computer Computations}, Plenum Press, 1972, pp.~85--103. \href{https://doi.org/10.1007/978-1-4684-2001-2_9}{DOI: 10.1007/978-1-4684-2001-2\_9}.
+\end{thebibliography}
+\end{document}

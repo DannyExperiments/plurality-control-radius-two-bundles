@@ -1,0 +1,4 @@
+Verified 225 complete 2×2×2 instances with no isolated X; 175 yes.
+Also exhaustively enumerated unrestricted subsets of leaders in 64 instances.
+Worked election: winning scores and two one-step failures checked.
+Extensions: 7 fixed-radius lifts and 125 unique-winner score comparisons.

@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "Cite this version of the research release."
+title: "Plurality voter control with full radius-two bundles"
+authors:
+  - name: "DannyExperiments"
+type: software
+version: "1.0.0"
+date-released: 2026-11-27
+repository-code: "https://github.com/DannyExperiments/plurality-control-radius-two-bundles"
+keywords:
+  - "plurality voting"
+  - "electoral control"
+  - "voter bundles"
+  - "Kendall distance"
+  - "three-dimensional matching"
+doi: "10.5281/zenodo.24570446"
+url: "https://doi.org/10.5281/zenodo.24570446"
+preferred-citation:
+  type: software
+  title: "Plurality voter control with full radius-two bundles"
+  authors:
+    - name: "DannyExperiments"
+  version: "1.0.0"
+  date-released: 2026-11-27
+  doi: "10.5281/zenodo.24570446"
+  url: "https://doi.org/10.5281/zenodo.24570446"
+  repository-code: "https://github.com/DannyExperiments/plurality-control-radius-two-bundles"

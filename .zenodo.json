@@ -1,0 +1,29 @@
+{
+  "title": "Plurality voter control with full radius-two bundles",
+  "upload_type": "software",
+  "version": "1.0.0",
+  "publication_date": "2026-11-27",
+  "creators": [
+    {
+      "name": "DannyExperiments"
+    }
+  ],
+  "description": "Deciding whether adding the bundles of at most k leaders makes a candidate a plurality co-winner is NP-complete when each bundle contains exactly the potential voters within two adjacent swaps of its leader and has at most three voters. The hardness holds when the distance graph is a disjoint union of induced five-vertex paths. This answers the radius-two, size-three question in §6.8 of Jiehua Chen’s dissertation.\n\nA reduction from perfect three-dimensional matching turns each triple into a five-voter path. Separation by marker pairs prevents edges between paths. Registered scores force one leader per path and restrict how many votes each opposing candidate can gain. The resulting capacities force a left choice on exactly the triples of a perfect matching. The appendix preserves the five-path structure at every fixed radius at least two and gives the unique-winner variant. Previous larger-radius hardness is credited. The search found no earlier classification of the exact radius-two case.\n\nExact replay checks all 225 nonisolated-X instances on a 2×2×2 universe and exhausts leader sets within the budget for 64. It checks the worked election and both variants. Internally reviewed. External peer review and formal verification remain pending.\n\nUnder human direction, ChatGPT Astra 6.2 (OpenAI) produced the discovery proof, radius-lift appendix and original replay packet. OpenAI Codex reviewed the mathematical argument and revised the manuscript. GPT-6.2 Sol traced the exact source and nearby hardness results, prepared the finite replay and illustrated example, and assembled the release. DannyExperiments maintains the repository and is the preferred citation identity. No AI system is proposed as an author.",
+  "keywords": [
+    "plurality voting",
+    "electoral control",
+    "voter bundles",
+    "Kendall distance",
+    "three-dimensional matching"
+  ],
+  "access_right": "open",
+  "license": "other-closed",
+  "notes": "All rights reserved. Publicly downloadable files are supplied without a repository-wide reuse license.",
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/DannyExperiments/plurality-control-radius-two-bundles/releases/tag/v1.0.0",
+      "relation": "isSupplementTo",
+      "resource_type": "software"
+    }
+  ]
+}
